@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sterile Hands</title>
+<meta name="description" content="Touchless 3D polyp atlas: control real colonoscopy polyps in 3D with hand gestures. Runs in your browser; the camera never leaves your device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"
+}}
+</script>
+<style>
+  :root {
+    --bg: #06080B; --text: #F4F1EA; --dim: #8A929C; --panel: rgba(14,17,22,0.86); --line: rgba(255,255,255,0.12);
+    --amber: #FFB020; --teal: #2DD4BF; --violet: #8C5CF5; --green: #4ADE80;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: Onest, system-ui, sans-serif; overflow: hidden; }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #fx { position: fixed; inset: 0; pointer-events: none; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  header { position: fixed; left: 28px; top: 22px; pointer-events: none; }
+  header h1 { margin: 0; font-weight: 800; font-size: 40px; letter-spacing: -1.2px; line-height: 1; }
+  header h1 span { background: linear-gradient(90deg, var(--teal), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header p { margin: 8px 0 0; font-size: 13px; color: var(--dim); letter-spacing: 0.4px; }
+  .card { position: fixed; left: 28px; top: 120px; width: 280px; padding: 18px 20px; border-radius: 18px; background: var(--panel);
+    border: 1px solid var(--line); backdrop-filter: blur(12px); }
+  .card .n { font-size: 12px; color: var(--dim); letter-spacing: 1.5px; }
+  .card .size { font-weight: 800; font-size: 46px; letter-spacing: -1.5px; margin-top: 6px; }
+  .card .size small { font-size: 18px; font-weight: 600; color: var(--dim); margin-left: 4px; }
+  .card .hist { font-weight: 600; font-size: 19px; margin-top: 2px; }
+  .card .site { font-size: 13px; color: var(--dim); margin-top: 6px; }
+  .dots { display: flex; gap: 6px; margin-top: 14px; }
+  .dots i { width: 22px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.15); }
+  .dots i.on { background: var(--teal); }
+  .legend { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 300px); }
+  .chip { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line);
+    font-size: 14px; color: var(--dim); transition: all .2s; }
+  .chip b { font-size: 18px; }
+  .chip.on { color: var(--bg); background: var(--amber); border-color: var(--amber); }
+  .pip { position: fixed; right: 22px; bottom: 22px; width: 240px; border-radius: 16px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+  .pip canvas { display: block; width: 100%; }
+  .pip .st { position: absolute; left: 10px; top: 8px; font-size: 12px; color: var(--text); text-shadow: 0 1px 4px #000; }
+  .start { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; padding: 30px 34px; border-radius: 24px;
+    background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(14px); max-width: 420px; }
+  .start button { font: 600 18px Onest, sans-serif; padding: 14px 26px; border-radius: 999px; border: 0; background: var(--teal); color: #04110F; cursor: pointer; }
+  .start p { color: var(--dim); font-size: 14px; line-height: 1.5; margin: 14px 0 0; }
+  .start .skip { background: transparent; color: var(--dim); font-size: 14px; margin-top: 10px; padding: 6px; }
+  .layer-label { position: fixed; transform: translate(12px, -50%); font-size: 13px; padding: 4px 9px; border-radius: 8px; background: var(--panel);
+    border: 1px solid var(--line); pointer-events: none; opacity: 0; transition: opacity .2s; white-space: nowrap; }
+  .credit { position: fixed; right: 28px; top: 26px; font-size: 11px; color: var(--dim); text-align: right; line-height: 1.6; }
+  .credit a { color: var(--dim); }
+  .nav { position: fixed; left: 28px; top: 360px; display: flex; gap: 8px; }
+  .nav button { font: 600 14px Onest, sans-serif; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--text); cursor: pointer; }
+  .rec { position: fixed; right: 28px; top: 92px; font: 600 13px "JetBrains Mono", monospace; padding: 7px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--text); cursor: pointer; }
+  .rec.on { background: #E5484D; border-color: #E5484D; }
+  .gest { display: none; }
+  body.studio #scene, body.studio #fx { width: 60vw !important; }
+  body.studio .nav, body.studio .rec:not(.on) { opacity: 0.35; }
+  body.studio .nav { display: none; }
+  body.studio .legend { left: 30vw; max-width: 56vw; }
+  body.studio .pip { left: 61.5vw; right: 2.5vw; top: 50%; bottom: auto; width: auto; transform: translateY(-50%); border-radius: 26px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+  body.studio .pip .st { display: none; }
+  body.studio .gest { display: flex; position: fixed; left: 61.5vw; right: 2.5vw; top: calc(50% + 18.4vw); justify-content: center; }
+  body.studio .gest span { font: 600 22px Onest, sans-serif; padding: 10px 22px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); }
+  body.studio .credit { right: 2.5vw; }
+  @media (max-width: 760px) {
+    header h1 { font-size: 28px; } header p { font-size: 11px; }
+    .card { top: auto; bottom: 140px; left: 16px; width: calc(100% - 32px); padding: 12px 16px; }
+    .card .size { font-size: 32px; }
+    .legend { bottom: 12px; max-width: calc(100% - 24px); gap: 6px; } .chip { padding: 7px 10px; font-size: 12px; }
+    .pip { width: 120px; right: 12px; top: 84px; bottom: auto; } .credit { display: none; }
+    .nav { top: auto; bottom: 86px; left: 16px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<canvas id="fx"></canvas>
+<header>
+  <h1>Sterile <span>Hands</span></h1>
+  <p class="mono">TOUCHLESS 3D POLYP ATLAS · REAL COLONOSCOPY CASES</p>
+</header>
+<div class="credit mono">polyps: REAL-Colon (Biffi et al. 2024, CC BY 4.0)<br>hands: MediaPipe · 3D: Three.js<br>research demo, not a medical device</div>
+<div class="card">
+  <div class="n mono" id="n">POLYP 1 / 6</div>
+  <div class="size" id="size">5<small>mm</small></div>
+  <div class="hist" id="hist">adenoma</div>
+  <div class="site mono" id="site">transverse colon · 001-001</div>
+  <div class="dots" id="dots"></div>
+</div>
+<div class="nav"><button id="prev">◀</button><button id="apart">✋ take apart</button><button id="next">▶</button></div>
+<div class="legend">
+  <div class="chip" data-g="pinch"><b>🤏</b>pinch + move · rotate</div>
+  <div class="chip" data-g="open"><b>✋</b>open hand · take apart</div>
+  <div class="chip" data-g="fist"><b>✊</b>fist · put together</div>
+  <div class="chip" data-g="swipe"><b>☝️</b>swipe · next polyp</div>
+  <div class="chip" data-g="zoom"><b>🤏🤏</b>two hands · zoom</div>
+</div>
+<div class="pip" id="pip" hidden><canvas id="cam" width="640" height="480"></canvas><div class="st mono" id="st">looking for a hand…</div></div>
+<div class="gest" id="gest"><span id="gestText">show your hand</span></div>
+<button class="rec" id="rec" title="R: record this tab">● REC</button>
+<div class="layer-label mono" id="l0">photo</div>
+<div class="layer-label mono" id="l1">depth (Depth Anything V2)</div>
+<div class="layer-label mono" id="l2">mask (SAM 2)</div>
+<div class="start" id="start">
+  <button id="go">Start camera</button>
+  <p>Control real polyps in 3D with your hands, like an endoscopist in sterile gloves.<br>Hand tracking runs in this browser; the video never leaves your device.</p>
+  <button class="skip" id="skip">no camera: use mouse / touch</button>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

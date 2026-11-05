@@ -1,0 +1,7 @@
+recordings/
+posts/
+video/node_modules/
+video/out/
+video/public/clips/
+video/stills.mjs
+__pycache__/

@@ -1,0 +1,179 @@
+{
+ "grid": 160,
+ "polyps": [
+  {
+   "id": "001-001_2",
+   "video": "001-001",
+   "t": 1102.4,
+   "size_mm": 5,
+   "histology": "adenoma",
+   "class": "AD",
+   "site": "transverse",
+   "elev_range": [
+    -0.2219,
+    0.2089
+   ],
+   "crop": [
+    474,
+    202,
+    878
+   ],
+   "box_crop": [
+    0.3645,
+    0.4476,
+    0.8645,
+    0.8907
+   ],
+   "mask_area": 0.143,
+   "peak": 0.204,
+   "found": {
+    "box": [
+     778.0,
+     591.9,
+     1252.7,
+     998.3
+    ],
+    "conf": 0.824
+   }
+  },
+  {
+   "id": "004-015_3",
+   "video": "004-015",
+   "t": 1609.0,
+   "size_mm": 5,
+   "histology": "TSA",
+   "class": "TSA",
+   "site": "rectum",
+   "elev_range": [
+    -0.1468,
+    0.4923
+   ],
+   "crop": [
+    82,
+    0,
+    1034
+   ],
+   "box_crop": [
+    0.0822,
+    0.1422,
+    0.9188,
+    0.7834
+   ],
+   "mask_area": 0.32,
+   "peak": 0.464,
+   "found": null
+  },
+  {
+   "id": "001-006_4",
+   "video": "001-006",
+   "t": 1128.3,
+   "size_mm": 8,
+   "histology": "adenoma",
+   "class": "AD",
+   "site": "transverse",
+   "elev_range": [
+    -0.2998,
+    0.2924
+   ],
+   "crop": [
+    115,
+    0,
+    1080
+   ],
+   "box_crop": [
+    0.1102,
+    0.4083,
+    0.8907,
+    0.863
+   ],
+   "mask_area": 0.223,
+   "peak": 0.244,
+   "found": null
+  },
+  {
+   "id": "003-013_2",
+   "video": "003-013",
+   "t": 1337.2,
+   "size_mm": 6,
+   "histology": "sessile serrated lesion without dysplasia",
+   "class": "SSL",
+   "site": "transverse",
+   "elev_range": [
+    -0.629,
+    0.3867
+   ],
+   "crop": [
+    302,
+    170,
+    910
+   ],
+   "box_crop": [
+    0.2505,
+    0.4945,
+    0.7505,
+    0.811
+   ],
+   "mask_area": 0.085,
+   "peak": 0.382,
+   "found": null
+  },
+  {
+   "id": "004-014_3",
+   "video": "004-014",
+   "t": 719.1,
+   "size_mm": 6,
+   "histology": "adenoma LSTNG",
+   "class": "AD",
+   "site": "ascending",
+   "elev_range": [
+    -0.2387,
+    0.4589
+   ],
+   "crop": [
+    31,
+    0,
+    1007
+   ],
+   "box_crop": [
+    0.1708,
+    0.2592,
+    0.8282,
+    0.8967
+   ],
+   "mask_area": 0.229,
+   "peak": 0.241,
+   "found": null
+  },
+  {
+   "id": "003-003_4",
+   "video": "003-003",
+   "t": 3249.4,
+   "size_mm": 9,
+   "histology": "hyperplastic polyp",
+   "class": "HP",
+   "site": "descending",
+   "elev_range": [
+    -0.4091,
+    0.2278
+   ],
+   "crop": [
+    272,
+    0,
+    1080
+   ],
+   "box_crop": [
+    0.1574,
+    0.2491,
+    0.8454,
+    0.7861
+   ],
+   "mask_area": 0.17,
+   "peak": 0.22,
+   "found": null
+  }
+ ],
+ "frame_size": [
+  1352,
+  1080
+ ]
+}
